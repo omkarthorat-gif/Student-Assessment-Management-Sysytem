@@ -1,0 +1,128 @@
+/* styles.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom right, #e9eff1, #f5f7fa);
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden; /* Prevents scrollbars from bubble overflow */
+}
+
+header {
+    background-color: #004aad;
+    padding: 20px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 2; /* Ensures header stays above bubbles */
+}
+
+.vignan-logo {
+    width: 180px;
+    height: auto;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+main h2 {
+    margin-top: 30px;
+    color: #333;
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 2; /* Ensures text stays above bubbles */
+}
+
+.role-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin: 40px;
+    position: relative;
+    z-index: 2; /* Ensures cards stay above bubbles */
+}
+
+.role-card {
+    background-color: white;
+    border-radius: 20px;
+    width: 300px;
+    min-height: 280px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.role-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.role-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+.role-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #004aad;
+}
+
+.role-card p {
+    color: #555;
+    font-size: 1rem;
+    padding: 0 10px;
+}
+
+/* Bubble Animation */
+.bubbles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Places bubbles behind content */
+    pointer-events: none; /* Ensures bubbles don't interfere with clicks */
+}
+
+.bubbles span {
+    position: absolute;
+    bottom: -50px; /* Start below the screen */
+    left: calc(10% * var(--i)); /* Spread bubbles horizontally */
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 74, 173, 0.2);
+    border-radius: 50%;
+    animation: bubble-animate 15s linear infinite;
+    animation-duration: calc(120s / var(--i)); /* Vary speed based on --i */
+}
+
+.bubbles span:nth-child(even) {
+    background: rgba(255, 255, 255, 0.3); /* Alternate color */
+}
+
+@keyframes bubble-animate {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-120vh) scale(1); /* Move up beyond screen */
+        opacity: 0;
+    }
+}

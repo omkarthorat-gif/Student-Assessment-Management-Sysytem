@@ -1,0 +1,30 @@
+# Ignore sensitive config files
+config.php
+config/db.php
+
+# Ignore uploads folder
+uploads/
+
+# Ignore IDE/editor folders
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore dependencies
+vendor/
+node_modules/
+
+# Logs and environment files
+*.log
+logs/
+.env
+.env.local
+
+# Temp and cache
+tmp/
+temp/

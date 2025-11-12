@@ -1,0 +1,122 @@
+-- Create Database for t2_t3_assessment
+CREATE DATABASE t2_t3_assessment;
+USE t2_t3_assessment;
+
+-- 1. Users Table
+CREATE TABLE Users (
+    username VARCHAR(50) PRIMARY KEY,
+    password VARCHAR(100) NOT NULL,
+    role ENUM('Admin', 'Student', 'Faculty') NOT NULL
+);
+
+-- 2. Departments Table
+CREATE TABLE Departments (
+    dept_id VARCHAR(10) PRIMARY KEY,
+    dept_name VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- 3. Year and Semester Table (Only 2 semesters per year)
+CREATE TABLE Year_Semester (
+    year INT NOT NULL CHECK (year BETWEEN 1 AND 4),
+    semester INT NOT NULL CHECK (semester IN (1, 2)),
+    PRIMARY KEY (year, semester)
+);
+
+-- 4. Sections Table (Year and Department Specific with A, B, C naming)
+CREATE TABLE Sections (
+    section_name CHAR(1) NOT NULL CHECK (section_name IN ('A', 'B', 'C', 'D', 'E', 'F')),
+    year INT NOT NULL CHECK (year BETWEEN 1 AND 4),
+    dept_id VARCHAR(10) NOT NULL,
+    PRIMARY KEY (section_name, year, dept_id),
+    FOREIGN KEY (year) REFERENCES Year_Semester(year),
+    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
+);
+
+-- 5. Students Table
+CREATE TABLE Students (
+    reg_no CHAR(10) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    year INT NOT NULL CHECK (year BETWEEN 1 AND 4),
+    section_name CHAR(1) NOT NULL,
+    dept_id VARCHAR(10) NOT NULL,
+    semester INT NOT NULL CHECK (semester IN (1, 2)),
+    FOREIGN KEY (section_name, year, dept_id) REFERENCES Sections(section_name, year, dept_id),
+    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id),
+    FOREIGN KEY (year, semester) REFERENCES Year_Semester(year, semester)
+);
+
+-- 6. Faculty Table
+CREATE TABLE Faculty (
+    faculty_id CHAR(10) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    dept_id VARCHAR(10) NOT NULL,
+    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
+);
+
+-- 7. Subjects Table (Updated to include Year and Semester as Composite Primary Key)
+CREATE TABLE Subjects (
+    subject_id VARCHAR(10) NOT NULL,
+    subject_name VARCHAR(100) NOT NULL,
+    dept_id VARCHAR(10) NOT NULL,
+    year INT NOT NULL,
+    semester INT NOT NULL,
+    PRIMARY KEY (subject_id, year, semester),
+    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id),
+    FOREIGN KEY (year, semester) REFERENCES Year_Semester(year, semester)
+);
+
+-- 8. Subject Allocation Table
+CREATE TABLE Subject_Allocation (
+    subject_id VARCHAR(10) NOT NULL,
+    year INT NOT NULL,
+    semester INT NOT NULL,
+    section_name CHAR(1) NOT NULL,
+    dept_id VARCHAR(10) NOT NULL,
+    PRIMARY KEY (subject_id, year, semester, section_name, dept_id),
+    FOREIGN KEY (subject_id, year, semester) REFERENCES Subjects(subject_id, year, semester),
+    FOREIGN KEY (section_name, year, dept_id) REFERENCES Sections(section_name, year, dept_id)
+);
+
+-- 9. Faculty-Subject Assignment Table
+CREATE TABLE Faculty_Subject_Assign (
+    faculty_id CHAR(10) NOT NULL,
+    subject_id VARCHAR(10) NOT NULL,
+    year INT NOT NULL,
+    semester INT NOT NULL,
+    section_name CHAR(1) NOT NULL,
+    dept_id VARCHAR(10) NOT NULL,
+    PRIMARY KEY (faculty_id, subject_id, year, semester, section_name, dept_id),
+    FOREIGN KEY (faculty_id) REFERENCES Faculty(faculty_id),
+    FOREIGN KEY (subject_id, year, semester, section_name, dept_id) REFERENCES Subject_Allocation(subject_id, year, semester, section_name, dept_id)
+);
+
+-- 10. T2_T3_Submissions Table
+CREATE TABLE T2_T3_Submissions (
+    submission_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_no CHAR(10) NOT NULL,
+    subject_id VARCHAR(10) NOT NULL,
+    year INT NOT NULL,
+    semester INT NOT NULL,
+    document_type ENUM('T2', 'T3') NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    upload_status ENUM('Uploaded', 'Not Uploaded') DEFAULT 'Uploaded',
+    upload_date DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (reg_no) REFERENCES Students(reg_no),
+    FOREIGN KEY (subject_id, year, semester) REFERENCES Subjects(subject_id, year, semester) ON DELETE CASCADE
+);
+
+-- 11. Marks Table
+CREATE TABLE Marks (
+    submission_id INT PRIMARY KEY,
+    t2_mark1 INT CHECK (t2_mark1 BETWEEN 0 AND 5),
+    t2_mark2 INT CHECK (t2_mark2 BETWEEN 0 AND 5),
+    t3_mark1 INT CHECK (t3_mark1 BETWEEN 0 AND 5),
+    t3_mark2 INT CHECK (t3_mark2 BETWEEN 0 AND 5),
+    total_t2_marks INT GENERATED ALWAYS AS (t2_mark1 + t2_mark2) STORED,
+    total_t3_marks INT GENERATED ALWAYS AS (t3_mark1 + t3_mark2) STORED,
+    assessed_status ENUM('Yes', 'No') DEFAULT 'No',
+    FOREIGN KEY (submission_id) REFERENCES T2_T3_Submissions(submission_id)
+);
+
+-- Default Admin Insertion
+INSERT INTO Users (username, password, role) VALUES ('admin', 'admin123', 'Admin');
